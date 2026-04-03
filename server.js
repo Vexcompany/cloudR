@@ -10,11 +10,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-const PORT = 3000;
-
 // CONFIG CLOUDINARY
-const CLOUD_NAME = "ISI_CLOUD_NAME";
-const UPLOAD_PRESET = "ISI_UPLOAD_PRESET";
+const PORT = process.env.PORT || 3000;
+const CLOUD_NAME = process.env.CLOUD_NAME;
+const UPLOAD_PRESET = process.env.UPLOAD_PRESET;
 
 // DB PATH
 const FILE_DB = "./db/files.json";
