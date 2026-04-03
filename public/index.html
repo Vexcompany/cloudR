@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagaska Cloud & Drive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            overflow-x: hidden;
+        }
+
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .nebula-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(ellipse at 40% 40%, rgba(99, 102, 241, 0.2) 0%, transparent 50%);
+            filter: blur(80px);
+            animation: nebulaMove 20s ease-in-out infinite;
+        }
+
+        @keyframes nebulaMove {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-panel {
+            background: rgba(20, 20, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .upload-zone {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+            border: 2px dashed rgba(99, 102, 241, 0.5);
+            transition: all 0.3s ease;
+        }
+        .upload-zone:hover, .upload-zone.dragover {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+            border-color: rgba(99, 102, 241, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+        }
+
+        .file-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideIn 0.4s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .file-item:hover {
+            transform: translateX(8px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .toast {
+            animation: toastSlide 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes toastSlide {
+            from { transform: translateX(100%) scale(0.8); opacity: 0; }
+            to { transform: translateX(0) scale(1); opacity: 1; }
+        }
+
+        .modal {
+            animation: modalFade 0.3s ease;
+        }
+        @keyframes modalFade {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .grid-pattern {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .preview-hero {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .file-icon-large {
+            font-size: 4rem;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .copied {
+            animation: copiedPulse 0.3s ease;
+        }
+        @keyframes copiedPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Drive Specific Styles */
+        .folder-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .folder-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .folder-icon {
+            color: #fbbf24;
+            filter: drop-shadow(0 4px 6px rgba(251, 191, 36, 0.3));
+        }
+        .breadcrumb-item {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .breadcrumb-item:hover {
+            color: #818cf8;
+        }
+        .context-menu {
+            position: absolute;
+            background: rgba(30, 30, 40, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 160px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+        .context-menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .context-menu-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .drive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .drive-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .tab-active {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white;
+        }
+        .tab-inactive {
+            background: rgba(255,255,255,0.05);
+            color: #9ca3af;
+        }
+        .tab-inactive:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen grid-pattern">
+
+    <div class="nebula-bg"></div>
+
+    <!-- Mode Selector (Cloud vs Drive) -->
+    <div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 glass rounded-full p-1 flex gap-1 shadow-2xl">
+        <button onclick="switchMode('cloud')" id="cloudTab" class="tab-active px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2">
+            <i class="fas fa-cloud"></i> Pagaska Cloud
+        </button>
+        <button onclick="switchMode('drive')" id="driveTab" class="tab-inactive px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2">
+            <i class="fas fa-hdd"></i> Pagaska Drive
+        </button>
+    </div>
+
+    <!-- PAGASKA CLOUD SECTION -->
+    <div id="cloudSection">
+        <nav class="glass sticky top-0 z-50 border-b border-white/10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16 items-center">
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="showMainApp()">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                            <i class="fas fa-cloud text-white text-lg"></i>
+                        </div>
+                        <span class="font-display text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                            Pagaska Cloud
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <button onclick="toggleView()" class="p-2 rounded-lg hover:bg-white/10 transition-colors" title="Toggle View">
+                            <i class="fas fa-th-large text-gray-400" id="viewIcon"></i>
+                        </button>
+                        <div class="h-8 w-px bg-white/10"></div>
+                        <button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center text-sm font-bold">
+                                <div class="hero-content">
+            <img src="https://iffrqakrixmgobvkzpzc.supabase.co/storage/v1/object/public/foto/logo.png" alt="Logo PAGASKA">
+                            </div>
+                            <span class="hidden sm:block text-sm">User</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="flex max-w-7xl mx-auto min-h-[calc(100vh-4rem)] pt-16">
+            
+            <aside class="w-64 glass-panel border-r border-white/10 hidden md:flex flex-col">
+                <div class="p-6">
+                    <button onclick="document.getElementById('fileInput').click()" 
+                            class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium shadow-lg shadow-indigo-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        Upload File
+                    </button>
+                    <input type="file" id="fileInput" multiple class="hidden" onchange="handleFiles(this.files)">
+                </div>
+
+                <nav class="flex-1 px-4 space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/10 text-white border border-white/10">
+                        <i class="fas fa-folder-open text-indigo-400"></i>
+                        <span>My Files</span>
+                        <span class="ml-auto text-xs bg-white/10 px-2 py-1 rounded-full" id="fileCount">0</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
+                        <i class="fas fa-clock text-purple-400"></i>
+                        <span>Recent</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <span>Starred</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
+                        <i class="fas fa-trash text-red-400"></i>
+                        <span>Trash</span>
+                    </a>
+                </nav>
+
+                <div class="p-6 border-t border-white/10">
+                    <div class="glass rounded-xl p-4">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400">Storage</span>
+                            <span class="text-white font-medium" id="storageText">0 MB / 100 MB</span>
+                        </div>
+                        <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full progress-bar rounded-full transition-all duration-500" id="storageBar" style="width: 0%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">*Session only</p>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="flex-1 p-6 overflow-y-auto">
+                
+                <div id="dropZone" class="upload-zone rounded-2xl p-12 mb-8 text-center cursor-pointer relative overflow-hidden group">
+                    <input type="file" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleFiles(this.files)">
+                    
+                    <div class="relative z-0">
+                        <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-indigo-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Drop files here to upload</h3>
+                        <p class="text-gray-400 mb-4">or click to browse (Max 4.5MB per file - Vercel limit)</p>
+                        <div class="flex justify-center gap-4 text-sm text-gray-500">
+                            <span class="flex items-center gap-1"><i class="fas fa-image"></i> Images</span>
+                            <span class="flex items-center gap-1"><i class="fas fa-video"></i> Videos</span>
+                            <span class="flex items-center gap-1"><i class="fas fa-file"></i> Documents</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <h2 class="text-2xl font-display font-bold">My Files</h2>
+                    <div class="flex gap-2">
+                        <button onclick="filterFiles('all')" class="px-4 py-2 rounded-lg bg-white/10 text-sm hover:bg-white/20 transition-colors border border-white/10 active">All</button>
+                        <button onclick="filterFiles('image')" class="px-4 py-2 rounded-lg bg-white/5 text-sm hover:bg-white/10 transition-colors border border-white/10 text-gray-400">Images</button>
+                        <button onclick="filterFiles('video')" class="px-4 py-2 rounded-lg bg-white/5 text-sm hover:bg-white/10 transition-colors border border-white/10 text-gray-400">Videos</button>
+                        <button onclick="filterFiles('document')" class="px-4 py-2 rounded-lg bg-white/5 text-sm hover:bg-white/10 transition-colors border border-white/10 text-gray-400">Docs</button>
+                    </div>
+                </div>
+
+                <div id="fileList" class="space-y-2">
+                    <div class="text-center py-20 text-gray-500" id="emptyState">
+                        <i class="fas fa-cloud text-6xl mb-4 opacity-20"></i>
+                        <p>No files uploaded yet</p>
+                        <p class="text-sm text-gray-600 mt-2">Files are stored in memory only for this session</p>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- PAGASKA DRIVE SECTION -->
+    <div id="driveSection" class="hidden">
+        <nav class="glass sticky top-0 z-50 border-b border-white/10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16 items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                            <i class="fas fa-hdd text-white text-lg"></i>
+                        </div>
+                        <span class="font-display text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                            Pagaska Drive
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10">
+                            <i class="fas fa-cloud text-green-400"></i>
+                            <span class="text-sm text-gray-300">Cloudinary Connected</span>
+                        </div>
+                        <div class="h-8 w-px bg-white/10"></div>
+                        <button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-sm font-bold">
+                                <div class="hero-content">
+            <img src="https://iffrqakrixmgobvkzpzc.supabase.co/storage/v1/object/public/foto/logo.png" alt="Logo PAGASKA">
+                            </div>
+                            <span class="hidden sm:block text-sm">User</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="flex max-w-7xl mx-auto min-h-[calc(100vh-4rem)] pt-16">
+            
+            <aside class="w-64 glass-panel border-r border-white/10 hidden md:flex flex-col">
+                <div class="p-6 space-y-3">
+                    <button onclick="document.getElementById('driveFileInput').click()" 
+                            class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        New File
+                    </button>
+                    <input type="file" id="driveFileInput" multiple class="hidden" onchange="handleDriveUpload(this.files)">
+                    
+                    <button onclick="showNewFolderModal()" 
+                            class="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium border border-white/10 transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-folder-plus"></i>
+                        New Folder
+                    </button>
+                </div>
+
+                <nav class="flex-1 px-4 space-y-1">
+                    <a href="#" onclick="navigateToRoot()" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/10 text-white border border-white/10">
+                        <i class="fas fa-hdd text-blue-400"></i>
+                        <span>My Drive</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
+                        <i class="fas fa-clock text-cyan-400"></i>
+                        <span>Recent</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <span>Starred</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
+                        <i class="fas fa-trash text-red-400"></i>
+                        <span>Trash</span>
+                    </a>
+                </nav>
+
+                <div class="p-6 border-t border-white/10">
+                    <div class="glass rounded-xl p-4">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400">Cloudinary Storage</span>
+                            <span class="text-green-400 font-medium text-xs">Unlimited</span>
+                        </div>
+                        <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full" style="width: 100%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">Powered by Cloudinary CDN</p>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="flex-1 p-6 overflow-y-auto">
+                <!-- Breadcrumb -->
+                <div class="flex items-center gap-2 mb-6 text-sm text-gray-400 overflow-x-auto">
+                    <span onclick="navigateToRoot()" class="breadcrumb-item hover:text-white cursor-pointer flex items-center gap-1">
+                        <i class="fas fa-hdd"></i> My Drive
+                    </span>
+                    <span id="driveBreadcrumb"></span>
+                </div>
+
+                <!-- Upload Area -->
+                <div id="driveDropZone" class="upload-zone rounded-2xl p-8 mb-8 text-center cursor-pointer relative overflow-hidden group border-blue-500/30 hover:border-blue-500">
+                    <input type="file" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleDriveUpload(this.files)">
+                    
+                    <div class="relative z-0 flex items-center justify-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-cloud-upload-alt text-2xl text-blue-400"></i>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="text-lg font-semibold">Drop files to upload to Drive</h3>
+                            <p class="text-gray-400 text-sm">Unlimited size • Cloudinary CDN • Instant share</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <h2 class="text-2xl font-display font-bold" id="currentFolderName">My Drive</h2>
+                    <div class="flex gap-2">
+                        <button onclick="toggleDriveView()" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10" title="Toggle View">
+                            <i class="fas fa-th-large text-gray-400" id="driveViewIcon"></i>
+                        </button>
+                        <button onclick="showNewFolderModal()" class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10 text-sm flex items-center gap-2">
+                            <i class="fas fa-folder-plus"></i> New Folder
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Drive Content -->
+                <div id="driveContent" class="drive-grid">
+                    <div class="text-center py-20 text-gray-500 col-span-full" id="driveEmptyState">
+                        <i class="fas fa-folder-open text-6xl mb-4 opacity-20"></i>
+                        <p>This folder is empty</p>
+                        <p class="text-sm text-gray-600 mt-2">Upload files or create folders to get started</p>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Preview Page (Shared) -->
+    <div id="previewPage" class="hidden min-h-screen">
+        <nav class="glass sticky top-0 z-50 border-b border-white/10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16 items-center">
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="backFromPreview()">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                            <i class="fas fa-cloud text-white text-lg" id="previewLogo"></i>
+                        </div>
+                        <span class="font-display text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400" id="previewTitle">
+                            Pagaska Cloud
+                        </span>
+                    </div>
+                    <button onclick="backFromPreview()" class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10 text-sm">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Files
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="max-w-4xl mx-auto p-6">
+            <div class="preview-hero rounded-3xl p-8 md:p-12 text-center mb-8">
+                <div id="previewIcon" class="mb-6">
+                    <i class="fas fa-file file-icon-large"></i>
+                </div>
+                <h1 id="previewFilename" class="text-3xl md:text-4xl font-display font-bold mb-4 break-all">filename.ext</h1>
+                <div class="flex justify-center gap-4 text-gray-400 mb-8 flex-wrap">
+                    <span id="previewSize" class="flex items-center gap-2">
+                        <i class="fas fa-weight-hanging"></i> 0 MB
+                    </span>
+                    <span class="w-px h-5 bg-white/20 hidden sm:block"></span>
+                    <span id="previewDate" class="flex items-center gap-2">
+                        <i class="fas fa-calendar"></i> Jan 1, 2024
+                    </span>
+                    <span class="w-px h-5 bg-white/20 hidden sm:block"></span>
+                    <span id="previewType" class="flex items-center gap-2">
+                        <i class="fas fa-file"></i> Document
+                    </span>
+                </div>
+                
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button id="previewDownloadBtn" class="btn-primary px-8 py-3 rounded-xl font-semibold text-white flex items-center gap-2">
+                        <i class="fas fa-download"></i>
+                        Download File
+                    </button>
+                    <button onclick="copyPreviewLink()" class="btn-secondary px-8 py-3 rounded-xl font-semibold flex items-center gap-2">
+                        <i class="fas fa-link"></i>
+                        <span id="copyText">Copy Link</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <i class="fas fa-share-alt text-indigo-400"></i>
+                    Direct Link
+                </h3>
+                <div class="flex gap-2">
+                    <input type="text" id="directLink" readonly 
+                           class="flex-1 bg-black/30 border border-white/10 rounded-lg px-4 py-3 text-gray-300 font-mono text-sm focus:outline-none focus:border-indigo-500/50">
+                    <button onclick="copyDirectLink()" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition-colors text-white" title="Copy">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">Share this link to allow others to view and download this file.</p>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-6">
+                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <i class="fas fa-eye text-purple-400"></i>
+                    Preview
+                </h3>
+                <div id="previewContainer" class="rounded-xl overflow-hidden bg-black/30 min-h-[300px] flex items-center justify-center">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Folder Modal -->
+    <div id="newFolderModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="glass-panel rounded-2xl p-6 w-full max-w-md modal">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="fas fa-folder-plus text-yellow-400"></i>
+                Create New Folder
+            </h3>
+            <input type="text" id="folderNameInput" placeholder="Folder name" 
+                   class="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-3 text-white mb-4 focus:outline-none focus:border-blue-500/50"
+                   onkeypress="if(event.key==='Enter')createNewFolder()">
+            <div class="flex justify-end gap-3">
+                <button onclick="closeNewFolderModal()" class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-gray-300">
+                    Cancel
+                </button>
+                <button onclick="createNewFolder()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium">
+                    Create
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div class="context-menu-item text-red-400" onclick="deleteDriveItem()">
+            <i class="fas fa-trash"></i> Delete
+        </div>
+        <div class="context-menu-item text-blue-400" onclick="renameDriveItem()">
+            <i class="fas fa-edit"></i> Rename
+        </div>
+        <div class="context-menu-item text-green-400" onclick="downloadDriveItem()">
+            <i class="fas fa-download"></i> Download
+        </div>
+    </div>
+
+    <!-- Cloudinary Config Modal -->
+    <div id="cloudinaryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="glass-panel rounded-2xl p-6 w-full max-w-md modal">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="fas fa-cog text-blue-400"></i>
+                Cloudinary Configuration
+            </h3>
+            <p class="text-sm text-gray-400 mb-4">Enter your Cloudinary credentials to enable unlimited storage.</p>
+            
+            <div class="space-y-3 mb-4">
+                <div>
+                    <label class="text-xs text-gray-500 uppercase">Cloud Name</label>
+                    <input type="text" id="cloudName" placeholder="your-cloud-name" 
+                           class="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500/50">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 uppercase">Upload Preset (Unsigned)</label>
+                    <input type="text" id="uploadPreset" placeholder="your-upload-preset" 
+                           class="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500/50">
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3">
+                <button onclick="closeCloudinaryModal()" class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-gray-300">
+                    Cancel
+                </button>
+                <button onclick="saveCloudinaryConfig()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium">
+                    Save & Connect
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
+
+    <script>
+    
+    async function login() {
+    const domain = prompt("Domain panel:");
+    const api = prompt("API Key:");
+
+    const res = await fetch("/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain, api_key: api })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        localStorage.setItem("userId", data.user.id);
+        alert("Login berhasil!");
+    } else {
+        alert("Login gagal!");
+    }
+}
+    
+        // ==================== MODE MANAGEMENT ====================
+        let currentMode = 'cloud'; // 'cloud' or 'drive'
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Update tabs
+            document.getElementById('cloudTab').className = mode === 'cloud' 
+                ? 'tab-active px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2'
+                : 'tab-inactive px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2';
+            
+            document.getElementById('driveTab').className = mode === 'drive'
+                ? 'tab-active px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2'
+                : 'tab-inactive px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2';
+            
+            // Show/hide sections
+            document.getElementById('cloudSection').classList.toggle('hidden', mode !== 'cloud');
+            document.getElementById('driveSection').classList.toggle('hidden', mode !== 'drive');
+            
+            // Update preview page logo
+            const logo = document.getElementById('previewLogo');
+            const title = document.getElementById('previewTitle');
+            if (mode === 'drive') {
+                logo.className = 'fas fa-hdd text-white text-lg';
+                title.textContent = 'Pagaska Drive';
+            } else {
+                logo.className = 'fas fa-cloud text-white text-lg';
+                title.textContent = 'Pagaska Cloud';
+            }
+        }
+
+        // ==================== PAGASKA CLOUD (Original) ====================
+        let files = [];
+        let currentFilter = 'all';
+        let viewMode = 'list';
+        let currentPreviewId = null;
+
+        // Initialize Cloud
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const fileId = urlParams.get('file');
+            
+            if (fileId && loadFileFromHash(fileId)) {
+                showPreviewPage(fileId);
+            } else {
+                showMainApp();
+            }
+            
+            renderFiles();
+            updateStorage();
+            setupDragAndDrop();
+            
+            // Initialize Drive
+            initDrive();
+        });
+
+        function generateId() {
+            return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        }
+
+        function handleFiles(fileList) {
+            Array.from(fileList).forEach(file => {
+                if (file.size > 4.5 * 1024 * 1024) {
+                    showToast('File too large for Vercel (max 4.5MB)', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const base64Data = e.target.result;
+                    const fileData = {
+                        id: generateId(),
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        category: getCategory(file.type),
+                        date: new Date().toISOString(),
+                        data: base64Data,
+                        hash: btoa(base64Data.substring(0, 100))
+                    };
+                    
+                    files.unshift(fileData);
+                    renderFiles();
+                    updateStorage();
+                    showToast(`Uploaded ${file.name}`, 'success');
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function getCategory(mimeType) {
+            if (mimeType.startsWith('image/')) return 'image';
+            if (mimeType.startsWith('video/')) return 'video';
+            if (mimeType.startsWith('audio/')) return 'audio';
+            if (mimeType.includes('pdf') || mimeType.includes('document') || mimeType.includes('text')) return 'document';
+            return 'other';
+        }
+
+        function getIcon(category, type) {
+            const icons = {
+                image: 'fa-image text-purple-400',
+                video: 'fa-video text-red-400',
+                audio: 'fa-music text-green-400',
+                document: 'fa-file-alt text-blue-400',
+                other: 'fa-file text-gray-400'
+            };
+            return icons[category] || icons.other;
+        }
+
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function showMainApp() {
+            document.getElementById('appContainer').classList.remove('hidden');
+            document.getElementById('previewPage').classList.add('hidden');
+            window.history.pushState({}, '', window.location.pathname);
+            currentPreviewId = null;
+        }
+
+        function showPreviewPage(fileId) {
+            const file = files.find(f => f.id === fileId);
+            if (!file) {
+                showToast('File not found', 'error');
+                showMainApp();
+                return;
+            }
+
+            currentPreviewId = fileId;
+            document.getElementById('appContainer').classList.add('hidden');
+            document.getElementById('driveSection').classList.add('hidden');
+            document.getElementById('previewPage').classList.remove('hidden');
+
+            const newUrl = `${window.location.origin}${window.location.pathname}?file=${fileId}`;
+            window.history.pushState({fileId}, '', newUrl);
+
+            document.getElementById('previewFilename').textContent = file.name;
+            document.getElementById('previewSize').innerHTML = `<i class="fas fa-weight-hanging"></i> ${formatSize(file.size)}`;
+            document.getElementById('previewDate').innerHTML = `<i class="fas fa-calendar"></i> ${formatDate(file.date)}`;
+            document.getElementById('previewType').innerHTML = `<i class="fas fa-file"></i> ${file.category.charAt(0).toUpperCase() + file.category.slice(1)}`;
+            
+            const iconClass = getIcon(file.category, file.type);
+            document.getElementById('previewIcon').innerHTML = `<i class="fas ${iconClass} file-icon-large"></i>`;
+            
+            document.getElementById('previewDownloadBtn').onclick = () => downloadFile(fileId);
+            
+            document.getElementById('directLink').value = newUrl;
+
+            renderPreviewContent(file);
+            window.scrollTo(0, 0);
+        }
+
+        function backFromPreview() {
+            if (currentMode === 'drive') {
+                document.getElementById('previewPage').classList.add('hidden');
+                document.getElementById('driveSection').classList.remove('hidden');
+            } else {
+                showMainApp();
+            }
+        }
+
+        function loadFileFromHash(fileId) {
+            return files.some(f => f.id === fileId);
+        }
+
+        function renderPreviewContent(file) {
+            const container = document.getElementById('previewContainer');
+            
+            if (file.category === 'image') {
+                container.innerHTML = `<img src="${file.data}" class="max-w-full max-h-[600px] object-contain" alt="${file.name}">`;
+            } else if (file.category === 'video') {
+                container.innerHTML = `
+                    <video src="${file.data}" controls class="max-w-full max-h-[600px]">
+                        Your browser does not support the video tag.
+                    </video>`;
+            } else if (file.category === 'audio') {
+                container.innerHTML = `
+                    <div class="text-center p-8">
+                        <i class="fas fa-music text-6xl text-indigo-400 mb-4"></i>
+                        <audio src="${file.data}" controls class="w-full max-w-md"></audio>
+                    </div>`;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center p-8">
+                        <i class="fas ${getIcon(file.category, file.type)} text-6xl text-gray-600 mb-4"></i>
+                        <p class="text-gray-400">Preview not available for this file type</p>
+                        <p class="text-sm text-gray-600 mt-2">${file.name}</p>
+                    </div>`;
+            }
+        }
+
+        function renderFiles() {
+            const container = document.getElementById('fileList');
+            const emptyState = document.getElementById('emptyState');
+            const filteredFiles = currentFilter === 'all' 
+                ? files 
+                : files.filter(f => f.category === currentFilter);
+
+            document.getElementById('fileCount').textContent = files.length;
+
+            if (filteredFiles.length === 0) {
+                container.innerHTML = '';
+                container.appendChild(emptyState);
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            if (viewMode === 'grid') {
+                container.className = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4';
+                container.innerHTML = filteredFiles.map(file => `
+                    <div class="file-item glass-panel rounded-xl p-4 group cursor-pointer hover:border-indigo-500/50" onclick="showPreviewPage('${file.id}')">
+                        <div class="aspect-square rounded-lg bg-white/5 mb-3 flex items-center justify-center overflow-hidden">
+                            ${file.category === 'image' 
+                                ? `<img src="${file.data}" class="w-full h-full object-cover" alt="${file.name}">`
+                                : `<i class="fas ${getIcon(file.category, file.type)} text-4xl"></i>`
+                            }
+                        </div>
+                        <h4 class="font-medium truncate text-sm mb-1">${file.name}</h4>
+                        <p class="text-xs text-gray-500">${formatSize(file.size)}</p>
+                    </div>
+                `).join('');
+            } else {
+                container.className = 'space-y-2';
+                container.innerHTML = filteredFiles.map(file => `
+                    <div class="file-item glass-panel rounded-xl p-4 flex items-center gap-4 group cursor-pointer hover:border-indigo-500/50" onclick="showPreviewPage('${file.id}')">
+                        <div class="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            ${file.category === 'image' 
+                                ? `<img src="${file.data}" class="w-full h-full object-cover" alt="${file.name}">`
+                                : `<i class="fas ${getIcon(file.category, file.type)} text-xl"></i>`
+                            }
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium truncate">${file.name}</h4>
+                            <p class="text-sm text-gray-500">${formatSize(file.size)} • ${formatDate(file.date)}</p>
+                        </div>
+                        <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="event.stopPropagation(); downloadFile('${file.id}')" class="p-2 rounded-lg hover:bg-white/10 text-indigo-400" title="Download">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); copyLink('${file.id}')" class="p-2 rounded-lg hover:bg-white/10 text-purple-400" title="Copy Link">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteFile('${file.id}')" class="p-2 rounded-lg hover:bg-white/10 text-red-400" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function filterFiles(category) {
+            currentFilter = category;
+            document.querySelectorAll('button[onclick^="filterFiles"]').forEach(btn => {
+                if (btn.getAttribute('onclick').includes(category)) {
+                    btn.className = 'px-4 py-2 rounded-lg bg-white/10 text-sm hover:bg-white/20 transition-colors border border-white/10 text-white';
+                } else {
+                    btn.className = 'px-4 py-2 rounded-lg bg-white/5 text-sm hover:bg-white/10 transition-colors border border-white/10 text-gray-400';
+                }
+            });
+            renderFiles();
+        }
+
+        function toggleView() {
+            viewMode = viewMode === 'list' ? 'grid' : 'list';
+            document.getElementById('viewIcon').className = viewMode === 'list' ? 'fas fa-th-large text-gray-400' : 'fas fa-list text-gray-400';
+            renderFiles();
+        }
+
+        function deleteFile(id) {
+            if (confirm('Are you sure you want to delete this file?')) {
+                files = files.filter(f => f.id !== id);
+                renderFiles();
+                updateStorage();
+                showToast('File deleted', 'success');
+                
+                if (currentPreviewId === id) {
+                    showMainApp();
+                }
+            }
+        }
+
+        function downloadFile(id) {
+            const file = files.find(f => f.id === id);
+            if (file) {
+                const a = document.createElement('a');
+                a.href = file.data;
+                a.download = file.name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showToast('Download started', 'success');
+            }
+        }
+
+        function copyLink(id) {
+            const shareUrl = `${window.location.origin}${window.location.pathname}?file=${id}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                showToast('Link copied to clipboard!', 'success');
+            });
+        }
+
+        function copyPreviewLink() {
+            if (currentPreviewId) {
+                copyLink(currentPreviewId);
+                const btn = document.getElementById('copyText');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.parentElement.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.parentElement.classList.remove('copied');
+                }, 2000);
+            }
+        }
+
+        function copyDirectLink() {
+            const input = document.getElementById('directLink');
+            input.select();
+            navigator.clipboard.writeText(input.value).then(() => {
+                showToast('Direct link copied!', 'success');
+            });
+        }
+
+        function updateStorage() {
+            const totalSize = files.reduce((acc, file) => acc + file.size, 0);
+            const maxSize = 100 * 1024 * 1024;
+            const percentage = (totalSize / maxSize) * 100;
+            
+            document.getElementById('storageText').textContent = `${formatSize(totalSize)} / 100 MB`;
+            document.getElementById('storageBar').style.width = `${Math.min(percentage, 100)}%`;
+        }
+
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            });
+        }
+
+        // ==================== PAGASKA DRIVE (Cloudinary) ====================
+        let driveFiles = [];
+        let driveFolders = [];
+        let currentFolderId = 'root';
+        let driveViewMode = 'grid';
+        let cloudinaryConfig = {
+            cloudName: localStorage.getItem('cloudinary_cloud_name') || '',
+            uploadPreset: localStorage.getItem('cloudinary_upload_preset') || ''
+        };
+        let contextMenuTarget = null;
+
+        function initDrive() {
+            // Load from localStorage
+            const savedFiles = localStorage.getItem('pagaska_drive_files');
+            const savedFolders = localStorage.getItem('pagaska_drive_folders');
+            
+            if (savedFiles) driveFiles = JSON.parse(savedFiles);
+            if (savedFolders) driveFolders = JSON.parse(savedFolders);
+            
+            // Create root folder if not exists
+            if (!driveFolders.find(f => f.id === 'root')) {
+                driveFolders.push({
+                    id: 'root',
+                    name: 'My Drive',
+                    parentId: null,
+                    createdAt: new Date().toISOString()
+                });
+            }
+            
+            renderDrive();
+            setupDriveDragAndDrop();
+            
+            // Check Cloudinary config
+            if (!cloudinaryConfig.cloudName || !cloudinaryConfig.uploadPreset) {
+                showCloudinaryModal();
+            }
+        }
+
+        function showCloudinaryModal() {
+            document.getElementById('cloudinaryModal').classList.remove('hidden');
+            if (cloudinaryConfig.cloudName) {
+                document.getElementById('cloudName').value = cloudinaryConfig.cloudName;
+            }
+            if (cloudinaryConfig.uploadPreset) {
+                document.getElementById('uploadPreset').value = cloudinaryConfig.uploadPreset;
+            }
+        }
+
+        function closeCloudinaryModal() {
+            document.getElementById('cloudinaryModal').classList.add('hidden');
+        }
+
+        function saveCloudinaryConfig() {
+            const cloudName = document.getElementById('cloudName').value.trim();
+            const uploadPreset = document.getElementById('uploadPreset').value.trim();
+            
+            if (!cloudName || !uploadPreset) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+            
+            cloudinaryConfig = { cloudName, uploadPreset };
+            localStorage.setItem('cloudinary_cloud_name', cloudName);
+            localStorage.setItem('cloudinary_upload_preset', uploadPreset);
+            
+            closeCloudinaryModal();
+            showToast('Cloudinary connected successfully!', 'success');
+        }
+
+        async function handleDriveUpload(fileList) {
+        const userId = localStorage.getItem("userId");
+
+        Array.from(fileList).forEach(async (file) => {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("folderId", currentFolderId);
+
+        try {
+            showToast(`Uploading ${file.name}...`, 'info');
+
+            const res = await fetch("/upload", {
+                method: "POST",
+                headers: {
+                    "x-user-id": userId
+                },
+                body: formData
+            });
+
+            const data = await res.json();
+
+            if (data.url) {
+                const newFile = {
+                    id: data.url.split("/").pop(),
+                    name: file.name,
+                    size: file.size,
+                    url: data.url,
+                    folderId: currentFolderId,
+                    createdAt: new Date().toISOString()
+                };
+
+                driveFiles.push(newFile);
+                saveDriveData();
+                renderDrive();
+
+                showToast(`${file.name} uploaded!`, 'success');
+            }
+
+        } catch (err) {
+            console.error(err);
+            showToast(`Upload failed`, 'error');
+        }
+    });
+}
+
+        function createNewFolder() {
+            const name = document.getElementById('folderNameInput').value.trim();
+            if (!name) {
+                showToast('Please enter a folder name', 'error');
+                return;
+            }
+            
+            const newFolder = {
+                id: generateId(),
+                name: name,
+                parentId: currentFolderId,
+                createdAt: new Date().toISOString()
+            };
+            
+            driveFolders.push(newFolder);
+            saveDriveData();
+            renderDrive();
+            closeNewFolderModal();
+            showToast(`Folder "${name}" created`, 'success');
+        }
+
+        function showNewFolderModal() {
+            document.getElementById('newFolderModal').classList.remove('hidden');
+            document.getElementById('folderNameInput').value = '';
+            document.getElementById('folderNameInput').focus();
+        }
+
+        function closeNewFolderModal() {
+            document.getElementById('newFolderModal').classList.add('hidden');
+        }
+
+        function navigateToFolder(folderId) {
+            currentFolderId = folderId;
+            renderDrive();
+        }
+
+        function navigateToRoot() {
+            currentFolderId = 'root';
+            renderDrive();
+        }
+
+        function getBreadcrumb() {
+            const breadcrumb = [];
+            let current = driveFolders.find(f => f.id === currentFolderId);
+            
+            while (current) {
+                breadcrumb.unshift(current);
+                current = driveFolders.find(f => f.id === current.parentId);
+            }
+            
+            return breadcrumb;
+        }
+
+        function renderDrive() {
+            const container = document.getElementById('driveContent');
+            const currentFolder = driveFolders.find(f => f.id === currentFolderId);
+            
+            // Update folder name
+            document.getElementById('currentFolderName').textContent = currentFolder ? currentFolder.name : 'My Drive';
+            
+            // Update breadcrumb
+            const breadcrumb = getBreadcrumb();
+            const breadcrumbHtml = breadcrumb.map((folder, index) => {
+                if (index === breadcrumb.length - 1) return '';
+                return `
+                    <span class="text-gray-600">/</span>
+                    <span onclick="navigateToFolder('${folder.id}')" class="breadcrumb-item hover:text-white cursor-pointer">
+                        ${folder.name}
+                    </span>
+                `;
+            }).join('');
+            document.getElementById('driveBreadcrumb').innerHTML = breadcrumbHtml;
+            
+            // Get current items
+            const subFolders = driveFolders.filter(f => f.parentId === currentFolderId);
+            const folderFiles = driveFiles.filter(f => f.folderId === currentFolderId);
+            
+            if (subFolders.length === 0 && folderFiles.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-20 text-gray-500 col-span-full" id="driveEmptyState">
+                        <i class="fas fa-folder-open text-6xl mb-4 opacity-20"></i>
+                        <p>This folder is empty</p>
+                        <p class="text-sm text-gray-600 mt-2">Upload files or create folders to get started</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (driveViewMode === 'grid') {
+                container.className = 'drive-grid';
+                let html = '';
+                
+                // Folders first
+                html += subFolders.map(folder => `
+                    <div class="folder-item glass-panel rounded-xl p-4 group relative" 
+                         ondblclick="navigateToFolder('${folder.id}')"
+                         oncontextmenu="showContextMenu(event, 'folder', '${folder.id}')">
+                        <div class="aspect-square rounded-lg bg-yellow-500/10 mb-3 flex items-center justify-center">
+                            <i class="fas fa-folder text-5xl folder-icon"></i>
+                        </div>
+                        <h4 class="font-medium truncate text-sm text-center">${folder.name}</h4>
+                        <p class="text-xs text-gray-500 text-center mt-1">Folder</p>
+                    </div>
+                `).join('');
+                
+                // Then files
+                html += folderFiles.map(file => `
+                    <div class="folder-item glass-panel rounded-xl p-4 group relative cursor-pointer"
+                         onclick="showDrivePreview('${file.id}')"
+                         oncontextmenu="showContextMenu(event, 'file', '${file.id}')">
+                        <div class="aspect-square rounded-lg bg-white/5 mb-3 flex items-center justify-center overflow-hidden">
+                            ${file.category === 'image' 
+                                ? `<img src="${file.url}" class="w-full h-full object-cover" alt="${file.name}">`
+                                : `<i class="fas ${getIcon(file.category, file.type)} text-4xl ${file.category === 'video' ? 'text-red-400' : file.category === 'audio' ? 'text-green-400' : 'text-blue-400'}"></i>`
+                            }
+                        </div>
+                        <h4 class="font-medium truncate text-sm text-center">${file.name}</h4>
+                        <p class="text-xs text-gray-500 text-center mt-1">${formatSize(file.size)}</p>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = html;
+            } else {
+                container.className = 'drive-list';
+                let html = '';
+                
+                // Folders
+                html += subFolders.map(folder => `
+                    <div class="file-item glass-panel rounded-xl p-4 flex items-center gap-4 group cursor-pointer"
+                         ondblclick="navigateToFolder('${folder.id}')"
+                         oncontextmenu="showContextMenu(event, 'folder', '${folder.id}')">
+                        <div class="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-folder text-yellow-400 text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium truncate">${folder.name}</h4>
+                            <p class="text-sm text-gray-500">Folder • ${formatDate(folder.createdAt)}</p>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Files
+                html += folderFiles.map(file => `
+                    <div class="file-item glass-panel rounded-xl p-4 flex items-center gap-4 group cursor-pointer"
+                         onclick="showDrivePreview('${file.id}')"
+                         oncontextmenu="showContextMenu(event, 'file', '${file.id}')">
+                        <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            ${file.category === 'image' 
+                                ? `<img src="${file.url}" class="w-full h-full object-cover" alt="${file.name}">`
+                                : `<i class="fas ${getIcon(file.category, file.type)} text-lg"></i>`
+                            }
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium truncate">${file.name}</h4>
+                            <p class="text-sm text-gray-500">${formatSize(file.size)} • ${formatDate(file.createdAt)}</p>
+                        </div>
+                        <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="event.stopPropagation(); window.open('${file.url}', '_blank')" class="p-2 rounded-lg hover:bg-white/10 text-blue-400" title="Open">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteDriveFile('${file.id}')" class="p-2 rounded-lg hover:bg-white/10 text-red-400" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = html;
+            }
+        }
+
+        function toggleDriveView() {
+            driveViewMode = driveViewMode === 'grid' ? 'list' : 'grid';
+            document.getElementById('driveViewIcon').className = driveViewMode === 'grid' ? 'fas fa-list text-gray-400' : 'fas fa-th-large text-gray-400';
+            renderDrive();
+        }
+
+        function showDrivePreview(fileId) {
+            const file = driveFiles.find(f => f.id === fileId);
+            if (!file) return;
+            
+            currentPreviewId = fileId;
+            document.getElementById('driveSection').classList.add('hidden');
+            document.getElementById('previewPage').classList.remove('hidden');
+            
+            // Update UI for Drive
+            document.getElementById('previewLogo').className = 'fas fa-hdd text-white text-lg';
+            document.getElementById('previewTitle').textContent = 'Pagaska Drive';
+            
+            document.getElementById('previewFilename').textContent = file.name;
+            document.getElementById('previewSize').innerHTML = `<i class="fas fa-weight-hanging"></i> ${formatSize(file.size)}`;
+            document.getElementById('previewDate').innerHTML = `<i class="fas fa-calendar"></i> ${formatDate(file.createdAt)}`;
+            document.getElementById('previewType').innerHTML = `<i class="fas fa-file"></i> ${file.category.charAt(0).toUpperCase() + file.category.slice(1)}`;
+            
+            const iconClass = getIcon(file.category, file.type);
+            document.getElementById('previewIcon').innerHTML = `<i class="fas ${iconClass} file-icon-large"></i>`;
+            
+            document.getElementById('previewDownloadBtn').onclick = () => window.open(file.url, '_blank');
+            document.getElementById('directLink').value = file.url;
+            
+            // Render preview
+            const container = document.getElementById('previewContainer');
+            if (file.category === 'image') {
+                container.innerHTML = `<img src="${file.url}" class="max-w-full max-h-[600px] object-contain" alt="${file.name}">`;
+            } else if (file.category === 'video') {
+                container.innerHTML = `
+                    <video src="${file.url}" controls class="max-w-full max-h-[600px]">
+                        Your browser does not support the video tag.
+                    </video>`;
+            } else if (file.category === 'audio') {
+                container.innerHTML = `
+                    <div class="text-center p-8">
+                        <i class="fas fa-music text-6xl text-blue-400 mb-4"></i>
+                        <audio src="${file.url}" controls class="w-full max-w-md"></audio>
+                    </div>`;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center p-8">
+                        <i class="fas ${getIcon(file.category, file.type)} text-6xl text-gray-600 mb-4"></i>
+                        <p class="text-gray-400">Preview not available for this file type</p>
+                        <a href="${file.url}" target="_blank" class="mt-4 inline-block px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">
+                            Download File
+                        </a>
+                    </div>`;
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
+        function showContextMenu(event, type, id) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            contextMenuTarget = { type, id };
+            
+            const menu = document.getElementById('contextMenu');
+            menu.style.display = 'block';
+            menu.style.left = event.pageX + 'px';
+            menu.style.top = event.pageY + 'px';
+        }
+
+        function hideContextMenu() {
+            document.getElementById('contextMenu').style.display = 'none';
+            contextMenuTarget = null;
+        }
+
+        function deleteDriveItem() {
+            if (!contextMenuTarget) return;
+            
+            if (contextMenuTarget.type === 'file') {
+                deleteDriveFile(contextMenuTarget.id);
+            } else {
+                deleteDriveFolder(contextMenuTarget.id);
+            }
+            hideContextMenu();
+        }
+
+        function deleteDriveFile(id) {
+            if (!confirm('Are you sure you want to delete this file?')) return;
+            
+            // Note: In production, you should also delete from Cloudinary using API
+            driveFiles = driveFiles.filter(f => f.id !== id);
+            saveDriveData();
+            renderDrive();
+            showToast('File deleted', 'success');
+        }
+
+        function deleteDriveFolder(id) {
+            if (!confirm('Are you sure? All contents will be deleted!')) return;
+            
+            // Recursive delete
+            const deleteFolderRecursive = (folderId) => {
+                driveFiles = driveFiles.filter(f => f.folderId !== folderId);
+                const subFolders = driveFolders.filter(f => f.parentId === folderId);
+                subFolders.forEach(f => deleteFolderRecursive(f.id));
+                driveFolders = driveFolders.filter(f => f.id !== folderId);
+            };
+            
+            deleteFolderRecursive(id);
+            saveDriveData();
+            renderDrive();
+            showToast('Folder deleted', 'success');
+        }
+
+        function renameDriveItem() {
+            if (!contextMenuTarget) return;
+            
+            const newName = prompt('Enter new name:');
+            if (!newName) return;
+            
+            if (contextMenuTarget.type === 'file') {
+                const file = driveFiles.find(f => f.id === contextMenuTarget.id);
+                if (file) {
+                    file.name = newName;
+                    saveDriveData();
+                    renderDrive();
+                }
+            } else {
+                const folder = driveFolders.find(f => f.id === contextMenuTarget.id);
+                if (folder) {
+                    folder.name = newName;
+                    saveDriveData();
+                    renderDrive();
+                }
+            }
+            hideContextMenu();
+        }
+
+        function downloadDriveItem() {
+            if (!contextMenuTarget || contextMenuTarget.type !== 'file') return;
+            
+            const file = driveFiles.find(f => f.id === contextMenuTarget.id);
+            if (file) {
+                window.open(file.url, '_blank');
+            }
+            hideContextMenu();
+        }
+
+        function saveDriveData() {
+            localStorage.setItem('pagaska_drive_files', JSON.stringify(driveFiles));
+            localStorage.setItem('pagaska_drive_folders', JSON.stringify(driveFolders));
+        }
+
+        function setupDriveDragAndDrop() {
+            const dropZone = document.getElementById('driveDropZone');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                handleDriveUpload(dt.files);
+            });
+        }
+
+        // Global click to hide context menu
+        document.addEventListener('click', hideContextMenu);
+
+        // ==================== SHARED UTILITIES ====================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'border-green-500/50 text-green-400',
+                error: 'border-red-500/50 text-red-400',
+                info: 'border-blue-500/50 text-blue-400'
+            };
+
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+
+            toast.className = `toast glass-panel border-l-4 ${colors[type]} px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3 min-w-[300px]`;
+            toast.innerHTML = `
+                <i class="fas ${icons[type]}"></i>
+                <span class="flex-1">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (currentPreviewId) backFromPreview();
+                closeNewFolderModal();
+                closeCloudinaryModal();
+            }
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                if (currentMode === 'cloud') {
+                    document.getElementById('fileInput').click();
+                } else {
+                    document.getElementById('driveFileInput').click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
